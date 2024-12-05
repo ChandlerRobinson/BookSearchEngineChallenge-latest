@@ -10,33 +10,40 @@ interface JwtPayload {
   email: string;
 }
 
+// Function to get the JWT secret key
+const getJwtSecretKey = (): string => {
+  const secretKey = process.env.JWT_SECRET_KEY;
+  if (!secretKey) {
+    throw new Error('JWT_SECRET_KEY is not defined');
+  }
+  return secretKey;
+};
+
 export const authenticateToken = (req: Request, res: Response, next: NextFunction) => {
   const authHeader = req.headers.authorization;
 
   if (authHeader) {
     const token = authHeader.split(' ')[1];
-    const secretKey = process.env.JWT_SECRET_KEY || '';
 
-    jwt.verify(token, secretKey, (err, user) => {
-      if (err) {
-        return res.sendStatus(403); // Forbidden
-      }
-
-      req.user = user as JwtPayload;
-      return next();
-    });
+    try {
+      const user = jwt.verify(token, getJwtSecretKey()) as JwtPayload;
+      req.user = user;
+      next();
+    } catch {
+      res.sendStatus(403); // Forbidden
+    }
   } else {
     res.sendStatus(401); // Unauthorized
   }
 };
 
-export const authMiddleware = ({ req }) => {
+export const authMiddleware = ({ req }: { req: Request }) => {
   const token = req.headers.authorization || '';
 
   if (token) {
     try {
-      const { data } = jwt.verify(token, process.env.JWT_SECRET_KEY);
-      req.user = data as JwtPayload;
+      const data = jwt.verify(token, getJwtSecretKey()) as JwtPayload;
+      req.user = data;
     } catch {
       console.log('Invalid token');
     }
@@ -47,7 +54,6 @@ export const authMiddleware = ({ req }) => {
 
 export const signToken = (username: string, email: string, _id: unknown) => {
   const payload = { username, email, _id };
-  const secretKey = process.env.JWT_SECRET_KEY || '';
-
-  return jwt.sign(payload, secretKey, { expiresIn: '1h' });
+  return jwt.sign(payload, getJwtSecretKey(), { expiresIn: '1h' });
 };
+
