@@ -17,11 +17,17 @@
     "concurrently": "^8.2.0"
   },
   "dependencies": {
+    "@types/bcrypt": "^5.0.2",
     "@types/dotenv": "^6.1.1",
+    "@types/graphql": "^14.2.3",
     "@types/jsonwebtoken": "^9.0.7",
+    "@types/mongoose": "^5.11.96",
     "apollo-server-express": "^3.13.0",
+    "bcrypt": "^5.1.1",
     "dotenv": "^16.4.7",
     "graphql": "^16.9.0",
-    "jsonwebtoken": "^9.0.2"
+    "graphql-tools": "^9.0.6",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.8.4"
   }
 }
